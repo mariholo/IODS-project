@@ -1,5 +1,6 @@
 ---
 title: "IODS course project"
+author: "Marianne Holopainen"
 output:
   html_document:
     theme: cosmo
