@@ -1,23 +1,21 @@
 
 # About the project
+I heard about the course from Sisu and from the mailing list of dbhubstudents. I am now excited to learn more about the Rstudio, GitHub and coding.
 
-*Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you should use R Markdown syntax.*
+The R for Health Data Science book (chapters 1-4) were easy to read and some parts also easy to understand. Most difficult was to follow how to operate with different functions, but practical exercises will probably give me more understanding how basic functions will work. I do not have the favorite topic yet but all information was valid. Overall, reading the book chapter was a good warm-up for the course, I think. 
 
 ```{r}
 # This is a so-called "R chunk" where you can write R code.
 
 date()
 
+#install.packages("rmarkdown").
 ```
-The text continues here.
 
+
+Link to my GitHub:
 https://github.com/mariholo/IODS-project.
 
-I heard about the course from Sisu and from the mailing list of dbhubstudents. I am now excited to learn more about the Rstudio, GitHub and coding.
-
-The R for Health Data Science book (chapters 1-4) were easy to read and some parts also easy to understand. Most difficult was to follow how to operate with different functions, but practical exercises will probably give me more understanding how basic functions will work. I do not have the favorite topic yet but all information was valid. Overall, reading the book chapter was a good warm-up for the course, I think. 
 
 
-
-install.packages("rmarkdown")
 

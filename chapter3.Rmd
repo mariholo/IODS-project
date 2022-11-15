@@ -1,0 +1,227 @@
+# Assigment 3
+
+
+
+```{r}
+library(dplyr)
+
+library(tidyverse)
+#read the joined student alcohol consumption data into R from url (just in case that everything is correct)
+library(readr)
+alc <- read_csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/alc.csv", show_col_types=FALSE)
+
+#print out the names of the variables in the data
+colnames (alc)
+
+
+#N sex
+alc %>% group_by(sex) %>% summarise(count = n())
+
+
+#N age
+alc %>% group_by(age) %>% summarise(count = n())
+
+
+```
+
+## 3.1 The description of the data
+
+This data approach student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features (35 variables) and it was collected by using school reports and questionnaires. Two data sets were first provided regarding the performance in two distinct subjects: Mathematics (mat) and Portuguese language (por). In this report I used a joined data set, where I made following adjustment: the grade variables were combined by averaging in math and Portuguese, 'alc_use' outcome was an average of workday alcohol consumption (numeric: from 1 - very low to 5 - very high) and weekend alcohol consumption (numeric: from 1 - very low to 5 - very high), and 'hig_use' outcome provide information if alc use was higher than 2. There were 370 participants in the study, of which 195 were females. Age range was from 15 to 22 years. 
+
+
+## 3.2 Personal hypothesis about the relationships of outcomes with alcohol consumption
+
+I chose the variables of sex, final grade,  number of school absences and current health status, to study their relationships to high/low alcohol consumption. My personal hypothesis were that  1) males have higher alcohol consumption than females, as well as 2) lower final grade, 3) higher number of school absences and 4) lower health status are predicted higher consumption. 
+
+## 3.3 The distribuiton of the chosen variables and their relationships with alcohol consumption
+
+```{r}
+#sex
+#high use as another grouping variable
+alc %>% group_by(sex, high_use) %>% summarise(count = n())
+
+
+# draw a bar plot of high_use by sex
+attach(alc)
+counts <- table(sex, high_use) 
+ barplot(counts,beside=T,legend=c('F','M')) 
+ barplot(counts,col=c('green','blue'), 
+         names.arg=c('Low', 'High'), 
+       beside=T,legend=c('F','M'), xlim=c(1,15))
+
+
+
+```
+
+By sex, males have more often high alcohol consumption than females (Male N = 70, Female N = 41). This relationship is illustrated in Barplot. 
+
+
+```{r}
+#final grade
+
+#means of the grades of the student
+alc %>% group_by(high_use) %>% summarise(mean_grade = mean(G3))
+
+#boxplot
+alc %>% ggplot(aes(x = high_use, y = G3)) +
+  geom_boxplot() 
+
+
+#means of the grades of the student by gender
+alc %>% group_by(sex, high_use) %>% summarise(mean_grade = mean(G3))
+
+plot1 = ggplot(alc, aes(x=high_use, y=G3)) + geom_boxplot() + facet_grid(~sex) 
+plot1
+
+
+```
+
+
+
+The descriptive statistics by grade show that mean of grade is higher in low alcohol consumption group (11.80 vs 10.86). The mean grades varied by gender; so that in males the differences in means was larger between the high and low consumption groups as compared to females. These results are illustrated in boxplots above.
+
+```{r}
+#school absences
+
+#means of the absences of the student
+alc %>% group_by(high_use) %>% summarise(mean_absences = mean(absences))
+
+#boxplot
+alc %>% ggplot(aes(x = high_use, y = absences)) +
+  geom_boxplot() 
+
+
+#means of absences of the student by gender
+alc %>% group_by(sex, high_use) %>% summarise(mean_grade = mean(absences))
+
+plot2 = ggplot(alc, aes(x=high_use, y=absences)) + geom_boxplot() + facet_grid(~sex) 
+plot2
+
+```
+
+By school absences, more absences were found in high use group (means: 6.37 vs 3.71). In males the mean difference of school absences was larger between the low and high alcohol consumption groups than in females. However, females with high consumption had more absences than males with high consumption.
+
+
+```{r}
+#health
+
+#means of current health status of the student
+alc %>% group_by(high_use) %>% summarise(mean_health = mean(health))
+
+#boxplot
+alc %>% ggplot(aes(x = high_use, y = health)) +
+  geom_boxplot() 
+
+
+#means of health status of the student by gender
+alc %>% group_by(sex, high_use) %>% summarise(mean_health = mean(health))
+
+plot3 = ggplot(alc, aes(x=sex, y=health)) + geom_boxplot() + facet_grid(~high_use) 
+plot3
+
+```
+
+
+Mean of health status was lower in high consumption group. In females, however, there was little difference on means of health between high and low consumption groups (0.02). The health status was lowest in males with high consumption.
+
+
+## 3.4 Logistic regression
+
+```{r}
+#model1
+
+# find the model with glm()
+model1 <- glm(high_use ~ G3 + absences + sex + health, data = alc, family = "binomial")
+
+# print out a summary of the model
+summary(model1)
+
+# print out the coefficients of the model
+matrix_coef <- summary(model1)$coefficients
+matrix_coef
+
+# compute odds ratios (OR)
+OR1 <- coef(model1) %>% exp
+
+# compute confidence intervals (CI)
+CI1 <- confint(model1) %>% exp()
+
+# print out the odds ratios with their confidence intervals
+cbind(OR1, CI1)
+
+model2 <- glm(high_use ~ G3 + absences + health + sex -1, data = alc, family = "binomial")
+
+# print out a summary of the model
+summary(model2) #no intercept model
+
+matrix_coef2 <- summary(model2)$coefficients
+matrix_coef2
+
+# compute odds ratios (OR)
+OR2 <- coef(model2) %>% exp
+
+# compute confidence intervals (CI)
+CI2 <- confint(model2) %>% exp()
+
+# print out the odds ratios with their confidence intervals
+cbind(OR2, CI2)
+ 
+
+```
+
+The summary of regression model and odds rations are presented above.  According to the results changes in grade (p = 0.04) and in absences (p < 0.001) as well as sex (p < 0.001) are associated with changes in the probability of high alcohol consumption. Lower grade (odds ratio = 0.92), higher absences (odds ratio = 1.10) and sex of male (odds ratio = 2.47) increases of probability of high alcohol consumption. The results are in line with the previous hypotheses except for health status. 
+
+## 3.5 Predictive power of the model
+
+```{r}
+
+library(readr)
+library(dplyr)
+library(boot)
+library(ggplot2)
+
+# fit the model with outcomes of statistically significant relationships
+model1 <- glm(high_use ~ G3 + absences + sex, data = alc, family = "binomial")
+
+# predict() the probability of high_use
+probabilities <- predict(model1, type = "response")
+
+library(dplyr)
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction = probability > 0.5)
+
+
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction)
+#table for probabilities
+table(high_use = alc$high_use, prediction = alc$prediction) %>% prop.table()
+
+
+#add margins
+table(high_use = alc$high_use, prediction = alc$prediction) %>% prop.table() %>% addmargins()
+
+#plot
+library(ggplot2)
+g2 <- ggplot(alc, aes(x = probability, y = high_use, col = prediction))
+g2 + geom_point()
+
+# define a loss function (average prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+# call loss_func to compute the average number of wrong predictions in the (training) data
+loss_func(class = alc$high_use, prob = alc$probability)
+
+
+
+
+```
+The total proportion of inaccurately classified individual i.e., the training error is 0.25 for the model. Performance of the the model is similar than simple guessing strategy. 
+
+
+

@@ -7,6 +7,7 @@ The work of the week are presented next.
 ```{r}
 date()
 
+#2.0
 #data wrangling in R script:
 
 #Marianne Holopainen, 7.11.2022, exercise 2. SEE THESE IN create_learning2014.R
@@ -63,7 +64,7 @@ date()
 ```
 
 
-## Analysis 1. The structure and the dimensions of the data
+## 2.1. The structure and the dimensions of the data
 
 Data set includes seven variables: gender, age, attitude, deep, stra, surf and points. There are 166 participants (110 female and 56 male) in the data. Age range was from 21 to 55 years. Over half of the participants were from 20 to 23 years old (N=88). 
 
@@ -100,7 +101,7 @@ ff_glimpse(learning2014.data)
 
 
 
-## Analysis 2.  A graphical overview of the data and summaries of the variables in the data
+## 2.2.  A graphical overview of the data and summaries of the variables in the data
 
 Summary of statistics for the outcomes are presented in Table following:
 
@@ -203,7 +204,7 @@ ggplot(learning2014.data, aes(x = stra, y = points)) +
 Although the relationship between points and 3 outcomes is a bit less clear, it still appears somewhat linear. Linear regression can be proceed. 
 
 
-## Analysis 3 and 4. Regression analyses.
+## 2.3 and 2.4. Regression analyses.
 
 Model 1:
 
@@ -246,7 +247,7 @@ The results depict that the model is now statistically significant (F(2, 163) = 
 In the model2, 2.5 % of the variance in the points (adjusted R-squared) can be predicted by the two outcomes.
 
 
-##Analysis 5. The diagnostic plots
+## 2.5. The diagnostic plots.
 
 ```{r}
 par(mfrow=c(2,2))
