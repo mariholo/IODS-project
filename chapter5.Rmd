@@ -1,0 +1,214 @@
+# Assignment 5
+
+
+## 5.1 Data description 
+
+```{r}
+library(tidyr)
+library(stringr)
+
+
+#read the datasets
+human5 <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/human2.txt", sep=",", header = TRUE)
+
+#colnames
+colnames(human5)
+
+#structure
+str(human5)
+
+#summary
+summary(human5)
+
+
+#distributions of variables and graphical overview
+# visualize the dataset 
+library(ggplot2)
+pivot_longer(human5, cols = everything()) %>% 
+  ggplot(aes(value)) + facet_wrap("name", scales = "free") + geom_histogram(bins = 30)
+
+
+#relationships between variables
+library(corrplot)
+# compute the correlation matrix and visualize it with corrplot
+cor(human5) %>% corrplot()
+cor(human5)
+
+
+```
+
+The data includes 8 variables (and 155 observations):
+  -Ado.Birth; Adolescent birth rate
+  -Edu.Exp; Expected years of schooling
+  -Edu2.FM; Population with Secondary Education (Female)/Population with Secondary Education (Male)
+  -GNI; Gross National Income per capital
+  -Labo.FM; Labour Force Participation Rate (Female)/Labour Force Participation Rate (Male)
+  -Life.Exp; Life expectancy at birth
+  -Mat.Mor; Maternal mortality ratio
+  -Parli.F; Percetange of representatives in parliament
+
+Mean of the life expectancy was  72 years and expected year of schooling 13 years.
+
+There were on average more males in population with secondary education and in labour force.
+
+In average, there was 21 representatives in parliament.
+
+Life expectancy, Expected years of schooling, Maternal mortality ratio (negative) and Adolescent birth rate (negative) were highly correlated.
+
+
+## 5.2 Principal component analysis (PCA)
+
+
+```{r}
+#RAW data
+# perform principal component analysis (with the SVD method) on the raw human data
+pca_human5 <- prcomp(human5)
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human5, choices = 1:2, col = c("grey40", "deeppink2"), cex = c(0.5, 1))
+
+
+#standardized data
+# standardize the variables
+human_std <- scale(human5)
+
+# print out summaries of the standardized variables
+summary(human_std)
+
+# perform principal component analysis (with the SVD method)
+pca_human5_std <- prcomp(human_std)
+
+# draw a biplot of the principal component representation and the original variables
+biplot(pca_human5_std, choices = 1:2, col = c("grey40", "deeppink2"), cex = c(0.4, 1))
+
+
+```
+
+
+Principal component analyses are presented above for raw data and standardized data. Results differed from each others, due to different scales used in outcomes. There were a lot of zero-length arrows in the raw-model, except GNI. 
+
+My personal interpretations of the first two principal component dimensions based on the biplot drawn for PCA on the standardized human data are Health and Equality.
+
+
+## 5.3 Tea dataset
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+tea <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/tea.csv", sep = ",", header = T)
+
+#structure of the data
+colnames(tea)
+
+View(tea)
+
+str(tea)
+
+#convert outcomes to factors
+tea$breakfast <- factor(tea$breakfast)
+tea$tea.time <- factor(tea$tea.time)
+tea$evening <- factor(tea$evening)
+tea$lunch <- factor(tea$lunch)
+tea$dinner <- factor(tea$dinner)
+tea$always <- factor(tea$always)
+tea$home <- factor(tea$home)
+tea$work <- factor(tea$work)
+tea$tearoom <- factor(tea$tearoom)
+tea$friends <- factor(tea$friends)
+tea$resto <- factor(tea$resto)
+tea$pub <- factor(tea$pub)
+tea$Tea <- factor(tea$Tea)
+tea$How <- factor(tea$How)
+tea$sugar <- factor(tea$sugar)
+tea$how <- factor(tea$how)
+tea$sugar <- factor(tea$sugar)
+tea$where <- factor(tea$where)
+tea$Tea <- factor(tea$Tea)
+tea$price <- factor(tea$price)
+tea$sex <- factor(tea$sex)
+tea$SPC <- factor(tea$SPC)
+tea$Sport <- factor(tea$Sport)
+tea$age_Q <- factor(tea$age_Q)
+tea$frequency <- factor(tea$frequency)
+tea$escape.exoticism <- factor(tea$escape.exoticism)
+tea$spirituality <- factor(tea$spirituality)
+tea$healthy <- factor(tea$healthy)
+tea$diuretic <- factor(tea$diuretic)
+tea$friendliness <- factor(tea$friendliness)
+tea$iron.absorption <- factor(tea$iron.absorption)
+tea$feminine <- factor(tea$feminine)
+tea$sophisticated <- factor(tea$sophisticated)
+tea$slimming <- factor(tea$slimming)
+tea$exciting <- factor(tea$exciting)
+tea$relaxing <- factor(tea$relaxing)
+tea$effect.on.health <- factor(tea$effect.on.health)
+
+
+library(dplyr)
+library(tidyr)
+
+colnames(tea)
+
+# column names to keep in the dataset
+keep_columns <- c("tea.time","evening", "lunch","dinner","always","home","work", "tearoom","friends","resto","pub","Tea",
+"How","sugar","how","where","price","sex","SPC","Sport","age_Q" ,"frequency" 
+,"escape.exoticism","spirituality","healthy","diuretic","friendliness","iron.absorption" 
+,"feminine","sophisticated","slimming","exciting","relaxing","effect.on.health")
+
+# select the 'keep_columns' to create a new dataset
+tea_time <- dplyr::select(tea, keep_columns)
+
+# look at the summaries and structure of the data
+summary(tea_time)
+str(tea_time)
+
+# visualize the dataset 
+library(ggplot2)
+pivot_longer(tea_time, cols = everything()) %>% 
+  ggplot(aes(value), theme(axis.text.x = element_text(angle = 120, hjust = 1, size = 3))) + facet_wrap("name", scales = "free") + geom_bar()
+
+#multiple correspondence analysis
+library(FactoMineR)
+mca <- MCA(tea_time, graph = FALSE)
+
+# summary of the model
+summary(mca)
+
+# visualize MCA
+plot(mca, invisible=c("ind"), graph.type = "classic", habillage = "quali", cex = c(1.5, 0.2))
+
+#multiple correspondence analysis for the selcected outcomes
+library(FactoMineR)
+mca2 <- MCA(tea_time[1:13], graph = FALSE)
+
+# summary of the model
+summary(mca2)
+
+# visualize MCA
+plot(mca2, invisible=c("ind"), graph.type = "classic", habillage = "quali")
+
+install.packages("ggplot2")
+library(ggplot2)
+library(factoextra)
+
+
+
+
+#to visualize the percentages of inertia explained by each MCA dimensions,
+fviz_screeplot(mca, addlabels = TRUE, ylim = c(0, 45))
+fviz_screeplot(mca2, addlabels = TRUE, ylim = c(0, 45))
+
+
+
+```
+
+
+The Multiple Correspondence Analysis (MCA) on the total tea data (mca) and for the selected variables are presented above as well as biplots and plots to visualize the percentages of inertia explained by each MCA dimensions.
+
+In a mca2 model the first dimension explained 13.3 % of the inertia that seems to considered to  where and when tea is drunk. 
+
+
+
+
